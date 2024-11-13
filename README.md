@@ -13,4 +13,4 @@ EPGStationの録画予約情報を取得して[epgs-reserves-ical](https://githu
 
 ## Licence
 
-[MIT Licence](https://raw.githubusercontent.com/hiroxto/epgs-reserves-ical-updater/main/LICENSE)
+[MIT Licence](https://github.com/hiroxto/epgs-reserves-ical-updater/blob/main/LICENSE)
