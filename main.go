@@ -67,9 +67,17 @@ func fetchAllReserves(epgStationURL string) ([]byte, error) {
 	return body, nil
 }
 
-func updateICal(url string, body []byte) error {
+func updateICal(url string, accessKey string, body []byte) error {
 	updateICalURL := fmt.Sprintf("%s/update", url)
-	resp, err := http.Post(updateICalURL, "application/json", bytes.NewBuffer(body))
+	req, err := http.NewRequest("POST", updateICalURL, bytes.NewBuffer(body))
+	if err != nil {
+		return fmt.Errorf("リクエストの作成に失敗: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Access-Key", accessKey)
+
+	// Send the request
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("更新リクエストに失敗: %v", err)
 	}
@@ -97,13 +105,14 @@ func updateICal(url string, body []byte) error {
 }
 
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Println("Usage: epgs-reserves-ical-updater <epgs_url> <ical_update_url>")
+	if len(os.Args) != 4 {
+		fmt.Println("Usage: epgs-reserves-ical-updater <epgs_url> <ical_url> <ical_access_key>")
 		os.Exit(1)
 	}
 
 	epgStationURL := os.Args[1]
-	icalUpdateURL := os.Args[2]
+	icalURL := os.Args[2]
+	icalAccessKey := os.Args[3]
 
 	// 予約情報を取得
 	body, err := fetchAllReserves(epgStationURL)
@@ -113,7 +122,7 @@ func main() {
 	}
 
 	// iCalを更新
-	if err := updateICal(icalUpdateURL, body); err != nil {
+	if err := updateICal(icalURL, icalAccessKey, body); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
